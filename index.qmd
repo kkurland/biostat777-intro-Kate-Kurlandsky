@@ -1,0 +1,16 @@
+---
+title: "Kate Kurlandsky"
+about: 
+  template: jolla
+  image: "katekurlandsky.jpg"
+  links: 
+    - icon: linkedin
+      href: https://www.linkedin.com/in/kate-kurlandsky
+      
+    - text: Email Me
+      href: mailto:kkurlan1@jh.edu
+---
+
+## Hi, I'm Kate!
+
+I am a second-year Master of Science student at the Johns Hopkins Bloomberg School of Public Health. I enjoy being outside, hiking, and trying out new coffee shops. I'm originally from Southeast Michigan.

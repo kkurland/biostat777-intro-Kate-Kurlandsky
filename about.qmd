@@ -1,0 +1,17 @@
+---
+title: "About"
+about: 
+  template: jolla
+---
+
+I graduated from the University of Michigan in 2021.
+
+![](hotairballoon.jpg){width="500"}
+
+I worked in Denver, Colorado for two years before coming to study at Hopkins.
+
+![](denver.jpg){width="500"}
+
+My academic interests are at the intersection of social determinants of health and infectious disease. I am also interested in epidemiological surveillance.
+
+![](virus.jpg){width="500"}

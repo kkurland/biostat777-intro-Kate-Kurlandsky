@@ -1,0 +1,109 @@
+---
+title: "Example Data Analysis"
+bibliography: references.bib
+---
+
+#### The goal of my analysis is to the describe the patient population of the Tuberculosis Epidemiologic Studies Consortium cohort. The intended audience of this project are researchers interested in tuberculosis or cohort studies in general.
+
+#### [Link to original dataset](https://data.cdc.gov/National-Center-for-HIV-Viral-Hepatitis-STD-and-TB/Tuberculosis-Epidemiologic-Studies-Consortium-TBES/5hpj-p74g/about_data)
+
+#### [Link to data dictionary](https://data.cdc.gov/api/views/5hpj-p74g/files/cde0ed15-cd8e-4bc1-b6ac-04f202e2ceff?download=true&filename=PartA_DataDictionary_2024_03_08.xlsx)
+
+#### I used ChatGPT to assist in managing errors and debugging. 
+
+::: callout-note
+This data comes from TBESC-II. "TBESC-II focused on strategies and tools to increase diagnosis and treatment of latent TB infection in populations at high risk of TB infection or progression to TB disease." Other TBESC cycles have different focuses. [Learn More](https://www.cdc.gov/tb/research/tbesc.html)
+:::
+
+::: column-margin
+@cdc, @ho2022, @ayers2024
+:::
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+
+data <- read_delim("Data Analysis/PartA05022024/PartAMain.csv", delim = "|") 
+filtered_data <- data %>%
+  mutate(enroll_date = as.Date(enroll_date, format = "%Y-%m-%d")) %>%
+  mutate(birth_country = recode(birth_country,
+                                "USA" = "United States",
+                                "MMR" = "Myanmar",
+                                "PHL" = "Philippines",
+                                "BTN" = "Bhutan",
+                                "IRQ" = "Iraq",
+                                "MEX" = "Mexico",
+                                "NPL" = "Nepal",
+                                "SOM" = "Somalia",
+                                "HND" = "Honduras",
+                                "SLV" = "El Salvador"))
+
+top_countries <- filtered_data %>%
+  count(birth_country) %>%
+  arrange(desc(n)) %>%
+  slice_head(n = 10) 
+  
+nusb_top_countries_data <- filtered_data %>%
+  filter(birth_country %in% top_countries$birth_country, birth_country != "United States")
+
+nusb_top_countries_data <- nusb_top_countries_data %>%
+  filter(!is.na(arrived_yr))
+
+daily_counts <- filtered_data %>%
+  count(enroll_date)
+
+cumulative_counts <- daily_counts %>%
+  arrange(enroll_date) %>%
+  mutate(cumulative_enrollment = cumsum(n))
+
+
+## TBESC Enrollment Over Time
+ggplot(cumulative_counts, aes(x = enroll_date, y = cumulative_enrollment)) + geom_line() + labs(title = "Cumulative Enrollment in TBESC Over Time", x = "Enrollment Date", y = "Cumulative Enrollment", subtitle = "This graph shows that enrollment into the TBESC cohort increased over time \nand occurred at discrete study visits.", caption = "Kate Kurlandsky")
+
+
+## Top Countries of Origin for Latent Tuberculosis in the TBESC
+ggplot(top_countries, aes(x = reorder(birth_country, -n), y = n)) + geom_bar(stat = "identity") + labs(title = "Top Countries of Origin for Latent Tuberculosis Patients in the TBESC", x = "Country of Origin", y = "Count", subtitle = "The United States is the most common country of origin of TBESC patients, however the \nmajority of patients have a country of origin other than the United States.", caption = "Kate Kurlandsky") + theme(axis.text.x = element_text(angle =  45, hjust = 1))
+
+## Histogram of Year of Arrival to the United States in the TBESC Among Foreign-Born
+ggplot(nusb_top_countries_data, aes(x = arrived_yr)) + geom_histogram(binwidth = 1) + scale_x_continuous(n.breaks = 10) + labs(title = "Histogram of Arrival Year to the United States in the TBESC Among \nForeign-Born", x = "Arrival Year", y = "Count", subtitle = "This graph shows the immigration patterns of patients in TBESC. Patients from countries such \nas El Salvador, Honduras, and Mexico immigrated to the United States semi-consistently \nover the years, while patients from countries like Bhutan, Myanmar, and the Philippines \nimmigrated in more concentrated periods. ", caption = "Kate Kurlandsky") + facet_wrap(~ birth_country) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+::: callout-warning
+We can see the way geopolitics trickles down even to the TBESC cohort. Conflicts drive non-refugee and refugee immigration from parts of the world where tuberculosis is much more common.
+:::
+
+![An Infographic from the Centers for Disease Control and Prevention About TB in the United States](Take-on-TB-infographic.png){fig-align="center"}
+
+### Summary
+
+In this analysis, I have briefly described the patient population in the Tuberculosis Epidemiologic Studies Consortium-II. We see that this cohort was enrolled from 2012-2017. The most common country of origin for patients in this cohort is the United States, however the majority of patients were born outside of the United States. This reflects the makeup of tuberculosis cases in the United States broadly. Lastly, we see that the distribution of arrival to the United States among patients in the TBESC differs based on country of origin.
+
+### Functions Used
+
+-   dplyr
+
+    -   read_delim()
+
+    -   mutate()
+
+    -   recode()
+
+    -   count()
+
+    -   arrange()
+
+    -   slice_head()
+
+    -   filter()
+
+-   ggplot2
+
+    -   geom_line()
+
+    -   geom_bar()
+
+    -   geom_histogram()
+
+### 

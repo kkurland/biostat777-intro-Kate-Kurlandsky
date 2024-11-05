@@ -1,0 +1,7 @@
+```{r}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+
+data <- read_delim("Data Analysis/PartA05022024/PartAMain.csv", delim = "|")
+ggplot(data = data, aes(x = enroll_date) + geom_histogram())

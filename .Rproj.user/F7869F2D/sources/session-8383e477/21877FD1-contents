@@ -1,0 +1,135 @@
+setwd("/Users/katekurlandsky/Documents/Stats/624/Project/PartA03082024")
+library(dplyr)
+library(stats)
+library(tidyverse)
+
+install.packages("ResourceSelection")
+library(ResourceSelection)
+
+options(scipen = 999, digits = 5)
+
+PartAMain = read.csv("PartAMain.csv", header = TRUE, sep = "|")
+
+AllCombinedLabs = read.csv("AllCombinedLabs.csv", header = TRUE, sep = "|")
+
+complete_cases <- subset(PartAMain, !is.na(d_case_status) & !is.na(refugee) & !is.na(diabetes) & !is.na(hiv) & !is.na(d_age_cat) & d_case_status != 2 & d_case_status != 3
+                         & d_case_status != 99 & refugee != 99 & diabetes != 99 & hiv != 99 & d_age_cat != 99)
+
+str(complete_cases)
+
+
+
+joined = left_join(complete_cases, AllCombinedLabs, by = "studyid")
+
+ltbi = subset(joined, d_main_set == 1)
+
+# n and percentage refugee
+table(ltbi$refugee)
+prop.table(table(ltbi$refugee))
+
+# n and percentage gender
+sub_r = subset(ltbi, refugee == 1)
+sub_nr = subset(ltbi, refugee == 0)
+
+table(sub_r$gender)
+prop.table(table(sub_r$gender))
+
+table(sub_nr$gender)
+prop.table(table(sub_nr$gender))
+
+table(ltbi$gender)
+prop.table(table(ltbi$gender))
+
+# n and percentage age
+table(sub_r$d_age_cat)
+prop.table(table(sub_r$d_age_cat))
+
+table(sub_nr$d_age_cat)
+prop.table(table(sub_nr$d_age_cat))
+
+table(ltbi$d_age_cat)
+prop.table(table(ltbi$d_age_cat))
+
+# n and percentage homeless
+table(sub_r$homeless)
+prop.table(table(sub_r$homeless))
+
+table(sub_nr$homeless)
+prop.table(table(sub_nr$homeless))
+
+table(ltbi$homeless)
+prop.table(table(ltbi$homeless))
+
+# n and percentage hiv +
+table(sub_r$hiv)
+prop.table(table(sub_r$hiv))
+
+table(sub_nr$hiv)
+prop.table(table(sub_nr$hiv))
+
+table(ltbi$hiv)
+prop.table(table(ltbi$hiv))
+
+# n and percentage diabetic
+table(sub_r$diabetes)
+prop.table(table(sub_r$diabetes))
+
+table(sub_nr$diabetes)
+prop.table(table(sub_nr$diabetes))
+
+table(ltbi$diabetes)
+prop.table(table(ltbi$diabetes))
+
+# n and percentage received BCG vaccine
+table(sub_r$bcg)
+prop.table(table(sub_r$bcg))
+
+table(sub_nr$bcg)
+prop.table(table(sub_nr$bcg))
+
+table(ltbi$bcg)
+prop.table(table(ltbi$bcg))
+
+#determine proportion of incident TB disease among all
+incdis <- sum(PartAMain$d_case_status == 1)
+(incdis/15593) * 100
+
+#dichotomizing age
+# If you have multiple categories you want to combine into one binary category:
+ltbi$binary_age <- ifelse(ltbi$d_age_cat %in% c(6, 7, 8), 1, 0)
+
+
+#logistic regression
+model1 <- glm(ltbi$d_case_status ~ ltbi$hiv, data = ltbi, family = binomial)
+summary(model1)
+exp(model1$coefficients)
+exp(confint(model1))
+
+model2 <- glm(ltbi$d_case_status ~ ltbi$diabetes, data = ltbi, family = binomial)
+summary(model2)
+exp(model2$coefficients)
+exp(confint(model2))
+
+model3 <- glm(ltbi$d_case_status ~ ltbi$binary_age, data = ltbi, family = binomial)
+summary(model3)
+exp(model3$coefficients)
+exp(confint(model3))
+
+
+model4 <- glm(ltbi$d_case_status ~ ltbi$refugee, data = ltbi, family = binomial)
+summary(model4)
+exp(model4$coefficients)
+exp(confint(model4))
+
+model5 <- glm(ltbi$d_case_status ~ ltbi$refugee + ltbi$diabetes + ltbi$hiv + ltbi$binary_age, data = ltbi, family = binomial)
+summary(model5)
+exp(model5$coefficients)
+exp(confint(model5))
+
+#Hosmer-Lemeshow attempt
+predicted_probabilities <- model5$fitted.values
+hoslem.test(ltbi$d_case_status, predicted_probabilities)
+
+
+
+

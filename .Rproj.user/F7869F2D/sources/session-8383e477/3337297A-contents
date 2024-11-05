@@ -1,0 +1,24 @@
+project:
+  type: website
+
+website:
+  title: "biostat777-intro-kate-kurlandsky"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - about.qmd
+      - href: DataAnalysis.qmd
+        text: Example Data Analysis
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+
+editor: visual
+
+publish:
+  - quarto-pub:
+      server: quartopub.com

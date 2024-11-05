@@ -1,0 +1,27 @@
+tmp_dat <- data.frame(
+  x = 1:5,
+  y = 6:10
+)
+
+map_dbl(.x = tmp_dat, .f = mean)
+
+x <- list(x = 1:5, y = 6:10)
+
+map_dbl(.x = x, ~ mean(.x, na.rm = TRUE))
+
+map_dbl(.x = x, .f = mean, na.rm = TRUE)
+
+##
+
+data <- mtcars
+
+## Part 1
+map_dbl(.x = data, .f = mean)
+map_dbl(.x = data, .f = sd)
+map(.x = data, .f = range)
+
+## Part 2
+map_if(.x = data, ~ mean(.x) < 20, ~ .x * 100)
+
+## Part 3
+
